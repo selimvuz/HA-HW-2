@@ -13,6 +13,8 @@ print("Model yükleniyor...")
 tokenizer = AutoTokenizer.from_pretrained("ytu-ce-cosmos/turkish-gpt2")
 model = AutoModel.from_pretrained("ytu-ce-cosmos/turkish-gpt2")
 
+tokenizer.pad_token = tokenizer.eos_token
+
 # GPU kullanılabilirse modeli aktar
 """
 if torch.cuda.is_available():
