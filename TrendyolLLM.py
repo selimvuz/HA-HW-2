@@ -14,21 +14,24 @@ tokenizer = AutoTokenizer.from_pretrained("Trendyol/Trendyol-LLM-7b-chat-v0.1")
 model = AutoModel.from_pretrained("Trendyol/Trendyol-LLM-7b-chat-v0.1")
 
 # GPU kullanılabilirse modeli aktar
+"""
 if torch.cuda.is_available():
     model = model.cuda()
     print("Model GPU'ya aktarıldı.")
+"""
 
 def get_embeddings(text, index, total):
     print(f"İşlem: {index+1}/{total}...")
     inputs = tokenizer(text, return_tensors="pt",
                        padding=True, truncation=True, max_length=512)
-    if torch.cuda.is_available():
-        inputs = {k: v.cuda() for k, v in inputs.items()}
+    # if torch.cuda.is_available():
+    #     inputs = {k: v.cuda() for k, v in inputs.items()}
     outputs = model(**inputs)
     embeddings = outputs.last_hidden_state.mean(dim=1).detach()
-    if torch.cuda.is_available():
-        embeddings = embeddings.cpu()  # GPU'dan CPU'ya taşı
+    # if torch.cuda.is_available():
+    #     embeddings = embeddings.cpu()  # GPU'dan CPU'ya taşı
     return embeddings.numpy()
+
 
 def load_data(directory):
     texts, labels = [], []
@@ -37,10 +40,11 @@ def load_data(directory):
         dir_path = os.path.join(directory, label)
         for filename in os.listdir(dir_path):
             file_path = os.path.join(dir_path, filename)
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, 'r', encoding='ISO-8859-1') as file:
                 texts.append(file.read())
                 labels.append(label_dict[label])
     return texts, labels
+
 
 # Veri kümesini yükleyin ve etiketlerini ayarlayın
 print("Veri kümesi yükleniyor...")
