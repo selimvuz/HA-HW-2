@@ -8,8 +8,8 @@ from sklearn.metrics import accuracy_score, classification_report
 
 # Model ve Tokenizer yükle
 print("Model yükleniyor...")
-tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-model = AutoModel.from_pretrained("dbmdz/bert-base-turkish-cased")
+tokenizer = AutoTokenizer.from_pretrained("Trendyol/Trendyol-LLM-7b-chat-v0.1")
+model = AutoModel.from_pretrained("Trendyol/Trendyol-LLM-7b-chat-v0.1")
 
 # GPU kullanılabilirse modeli aktar
 """
@@ -17,6 +17,7 @@ if torch.cuda.is_available():
     model = model.cuda()
     print("Model GPU'ya aktarıldı.")
 """
+
 
 def get_embeddings(text, index, total):
     print(f"İşlem: {index+1}/{total}...")
@@ -69,15 +70,18 @@ reference_texts = [
 reference_embeddings = np.vstack([get_embeddings(text, idx, len(reference_texts))
                                   for idx, text in enumerate(reference_texts)])
 
+
 def predict_with_cosine_similarity(embeddings, reference_embeddings):
     predictions = []
     for embedding in embeddings:
         # Her bir referans temsili ile kosinüs benzerliğini hesapla
-        cosine_similarities = [1 - cosine(embedding, ref_emb) for ref_emb in reference_embeddings]
+        cosine_similarities = [
+            1 - cosine(embedding, ref_emb) for ref_emb in reference_embeddings]
         # En yüksek benzerliğe sahip sınıfın indeksini bul
         predicted_class = np.argmax(cosine_similarities)
         predictions.append(predicted_class)
     return predictions
+
 
 # Tahminleri yap
 predictions = predict_with_cosine_similarity(X_test, reference_embeddings)

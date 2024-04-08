@@ -20,6 +20,7 @@ if torch.cuda.is_available():
     print("Model GPU'ya aktarıldı.")
 """
 
+
 def get_embeddings(text, index, total):
     print(f"İşlem: {index+1}/{total}...")
     inputs = tokenizer(text, return_tensors="pt",
@@ -31,6 +32,7 @@ def get_embeddings(text, index, total):
     # if torch.cuda.is_available():
     #     embeddings = embeddings.cpu()  # GPU'dan CPU'ya taşı
     return embeddings.numpy()
+
 
 def load_data(directory):
     texts, labels = [], []
@@ -47,7 +49,7 @@ def load_data(directory):
 
 # Veri kümesini yükleyin ve etiketlerini ayarlayın
 print("Veri kümesi yükleniyor...")
-texts, labels = load_data('datasets/sentiment')
+texts, labels = load_data('../datasets/sentiment')
 
 # Toplam soru sayısını hesapla
 total_texts = len(texts)
@@ -69,6 +71,7 @@ reference_texts = [
 ]
 reference_embeddings = np.vstack([get_embeddings(text, idx, len(reference_texts))
                                   for idx, text in enumerate(reference_texts)])
+
 
 def predict_with_cosine_similarity(embeddings, reference_embeddings):
     predictions = []
