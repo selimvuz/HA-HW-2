@@ -10,10 +10,8 @@ from sklearn.model_selection import cross_val_score
 
 # Model ve Tokenizer yükle
 print("Model yükleniyor...")
-tokenizer = AutoTokenizer.from_pretrained("ytu-ce-cosmos/turkish-gpt2")
-model = AutoModel.from_pretrained("ytu-ce-cosmos/turkish-gpt2")
-
-tokenizer.pad_token = tokenizer.eos_token
+tokenizer = AutoTokenizer.from_pretrained("ytu-ce-cosmos/turkish-base-bert-uncased")
+model = AutoModel.from_pretrained("ytu-ce-cosmos/turkish-base-bert-uncased")
 
 # GPU kullanılabilirse modeli aktar
 """
@@ -50,7 +48,7 @@ def load_data(directory):
 
 # Veri kümesini yükleyin ve etiketlerini ayarlayın
 print("Veri kümesi yükleniyor...")
-texts, labels = load_data('datasets/sentiment')
+texts, labels = load_data('../../datasets/sentiment')
 
 # Toplam soru sayısını hesapla
 total_texts = len(texts)

@@ -3,15 +3,14 @@ import torch
 from transformers import AutoTokenizer, AutoModel
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score
+from scipy.spatial.distance import cosine
+from sklearn.metrics import accuracy_score, classification_report
 
 # Model ve Tokenizer yükle
 print("Model yükleniyor...")
-tokenizer = AutoTokenizer.from_pretrained("dbmdz/bert-base-turkish-cased")
-model = AutoModel.from_pretrained("dbmdz/bert-base-turkish-cased")
+tokenizer = AutoTokenizer.from_pretrained(
+    "ytu-ce-cosmos/turkish-base-bert-uncased")
+model = AutoModel.from_pretrained("ytu-ce-cosmos/turkish-base-bert-uncased")
 
 # GPU kullanılabilirse modeli aktar
 """
@@ -19,6 +18,7 @@ if torch.cuda.is_available():
     model = model.cuda()
     print("Model GPU'ya aktarıldı.")
 """
+
 
 def get_embeddings(text, index, total):
     print(f"İşlem: {index+1}/{total}...")
@@ -48,7 +48,7 @@ def load_data(directory):
 
 # Veri kümesini yükleyin ve etiketlerini ayarlayın
 print("Veri kümesi yükleniyor...")
-texts, labels = load_data('datasets/sentiment')
+texts, labels = load_data('../../datasets/sentiment')
 
 # Toplam soru sayısını hesapla
 total_texts = len(texts)
@@ -62,14 +62,30 @@ embeddings = np.vstack([get_embeddings(text, idx, total_texts)
 X_train, X_test, y_train, y_test = train_test_split(
     embeddings, labels, test_size=0.2, random_state=42)
 
-# Her bir sınıflandırıcı için eğit ve değerlendir
-classifiers = [
-    ("Random Forest", RandomForestClassifier()),
-    ("SVM", SVC()),
-    ("Logistic Regression", LogisticRegression(max_iter=1000))
+# Belirli cümleler için temsilcileri (embeddings) al
+reference_texts = [
+    "Bu metin olumlu ifadeler içermektedir.",
+    "Bu metin olumsuz ifadeler içermektedir.",
+    "Bu metin tarafsız ifadeler içermektedir."
 ]
+reference_embeddings = np.vstack([get_embeddings(text, idx, len(reference_texts))
+                                  for idx, text in enumerate(reference_texts)])
 
-for name, clf in classifiers:
-    scores = cross_val_score(clf, embeddings, labels, cv=5)
-    print(f"{name} 5-fold Cross Validation Accuracy: %0.2f (+/- %0.2f)" %
-          (scores.mean(), scores.std() * 2))
+
+def predict_with_cosine_similarity(embeddings, reference_embeddings):
+    predictions = []
+    for embedding in embeddings:
+        # Her bir referans temsili ile kosinüs benzerliğini hesapla
+        cosine_similarities = [
+            1 - cosine(embedding, ref_emb) for ref_emb in reference_embeddings]
+        # En yüksek benzerliğe sahip sınıfın indeksini bul
+        predicted_class = np.argmax(cosine_similarities)
+        predictions.append(predicted_class)
+    return predictions
+
+
+# Tahminleri yap
+predictions = predict_with_cosine_similarity(X_test, reference_embeddings)
+
+# Performansı değerlendir
+print("Doğruluk Skoru:", accuracy_score(y_test, predictions))
