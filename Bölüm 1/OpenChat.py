@@ -13,6 +13,8 @@ print("Model yükleniyor...")
 tokenizer = AutoTokenizer.from_pretrained("openchat/openchat_3.5")
 model = AutoModel.from_pretrained("openchat/openchat_3.5")
 
+tokenizer.pad_token = tokenizer.eos_token
+
 # GPU kullanılabilirse modeli aktar
 """
 if torch.cuda.is_available():
