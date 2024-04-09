@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, AutoModel
 import numpy as np
 from sklearn.model_selection import train_test_split
 from scipy.spatial.distance import cosine
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score
 
 # Model ve Tokenizer yükle
 print("Model yükleniyor...")
